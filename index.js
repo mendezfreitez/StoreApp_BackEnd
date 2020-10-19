@@ -1,6 +1,24 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
+// const bp = require('body-parser');
 const session = require('express-session');
+const multer = require('multer');
+// const upload = multer({ dest: './imagenes' });
+// const storage = multer.diskStorage({ 
+//   destination:function(req,file,callback){
+//     const dir = `./imagenes/vaina`;
+//     if (!fs.existsSync(dir)) {
+//       fs.mkdirSync(dir);
+//     }
+//     callback(null, dir);
+//   },
+//   filename: function (req, file, callback) {
+//     callback(null, file.originalname);
+//   }
+// })
+// const upload = multer({storage:storage}).array('imagen', 10)
 const SaltRounds = 10;
 const app = express();
 const cors = require('cors');
@@ -14,10 +32,17 @@ app.use(session({
   saveUninitialized:false
 }));
 app.use(cors());
-app.use(express.json({limit: '50mb', extended: true}));
-app.use(express.urlencoded({limit: '50mb', extended: true}));
+// app.use(bp.urlencoded({ extended: false }))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'imagenes')));
 
-mongoose.connect(`mongodb://localhost:27017/storeDB`, {useNewUrlParser: true, useUnifiedTopology: true}, function(err){
+// mongoose.connect(`mongodb://localhost:27017/storeDB`, {useNewUrlParser: true, useUnifiedTopology: true}, function(err){
+//   if(err){ console.log(`Ocurrio un error al intentar conectar con la BD.`); }
+//   else{ console.log(`Conectado a mongoDB.`); }
+// });
+
+mongoose.connect(`mongodb+srv://mendezfreitez:21057883@cluster0.hhhho.mongodb.net/storeDB?retryWrites=true&w=majority`, {useNewUrlParser: true, useUnifiedTopology: true}, function(err){
   if(err){ console.log(`Ocurrio un error al intentar conectar con la BD.`); }
   else{ console.log(`Conectado a mongoDB.`); }
 });
@@ -29,7 +54,7 @@ const productoEsquema = new mongoose.Schema({
   precio: Number,
   cantidad: Number,
   nombreImagenes:Array,
-  dataImagenes:Array
+  // dataImagenes:Array
 }); 
 const usuarioEsquema = new mongoose.Schema({
   usuario: String,
@@ -43,6 +68,7 @@ const cateoriaEsquema = new mongoose.Schema({
 const unProducto = mongoose.model('productos', productoEsquema);
 const unUsuario = mongoose.model('usuarios', usuarioEsquema);
 const unaCategoria = mongoose.model('categorias', cateoriaEsquema);
+var nombreCarpeta = '';
 
 app.get('/', function (req, res) {
   res.send('Bienvenido Daniel');
@@ -61,7 +87,7 @@ app.post('/traerUnProducto', function (req, res) {
   });
 })
 app.post('/traerTodos', function (req, res) {
-  // console.log(req.body);
+  console.log(req.body);
   if (req.body.id === '') {
     unProducto.find(function(err, result){
       if(err){
@@ -98,25 +124,25 @@ app.post('/Registro', function(req, res){
   });
 });
 app.post('/NuevoProducto', function (req, res) {
-  console.log(req.body.idProducto);
   if (req.body.idProducto === '') {
-    unProducto.create({
+    unProducto.create({ 
     nombre: req.body.nombre,
-    descripcion: req.body.descripcion,
+    descripcion: req.body.descripcion, 
     categoria: req.body.categoria,
     precio: req.body.precio,
     cantidad: req.body.cantidad,
     nombreImagenes:req.body.nombreImags,
-    dataImagenes:req.body.dataImags
-    }, function(err){
-      if(!err){
+    // dataImagenes:req.body.dataImags
+    }, function(err, result){
+        if (!err) {
+        nombreCarpeta = result._id;
         res.send(`Producto "${req.body.nombre}" guardado en stock!`);
       }
       else{
         res.send(`Error al almacenar producto!`);
         console.log(err);
       }
-    });  
+    });
   }
   else {
     unProducto.findByIdAndUpdate(
@@ -128,7 +154,7 @@ app.post('/NuevoProducto', function (req, res) {
         precio: req.body.precio,
         cantidad: req.body.cantidad,
         nombreImagenes: req.body.nombreImags,
-        dataImagenes: req.body.dataImags,
+        // dataImagenes: req.body.dataImags,
       },
       function (error) {
         if (!error) {
@@ -141,6 +167,79 @@ app.post('/NuevoProducto', function (req, res) {
   }
 
 });
+
+app.post('/ImagenesNuevoProducto', function (req, res) {
+
+
+  const storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+      console.log(JSON.stringify(req.body))
+      const dir = `./imagenes/${nombreCarpeta}`;
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+      }
+      callback(null, dir);
+    },
+    filename: function (req, file, callback) {
+      callback(null, file.originalname.replace(/ /g,'_'));
+    }
+  });
+
+  const upload = multer({storage:storage}).array('imagen', 10)
+
+  upload(req, res, function (error) {
+    // console.log(req.body);
+    if (error) {
+      return res.send('Algo anda mal con el guardado de imágenes...')
+    }
+    res.send('Guardado exitoso');
+  });
+
+
+  // if (req.body.idProducto === '') {
+  //   unProducto.create({ 
+  //   nombre: req.body.nombre,
+  //   descripcion: req.body.descripcion, 
+  //   categoria: req.body.categoria,
+  //   precio: req.body.precio,
+  //   cantidad: req.body.cantidad,
+  //   nombreImagenes:req.body.nombreImags,
+  //   dataImagenes:req.body.dataImags
+  //   }, function(err){
+  //     if(!err){
+  //       res.send(`Producto "${req.body.nombre}" guardado en stock!`);
+  //     }
+  //     else{
+  //       res.send(`Error al almacenar producto!`);
+  //       console.log(err);
+  //     }
+  //   });
+
+  // }
+  // else {
+  //   unProducto.findByIdAndUpdate(
+  //     { _id: req.body.idProducto },
+  //     {
+  //       nombre: req.body.nombre,
+  //       descripcion: req.body.descripcion,
+  //       categoria: req.body.categoria,
+  //       precio: req.body.precio,
+  //       cantidad: req.body.cantidad,
+  //       nombreImagenes: req.body.nombreImags,
+  //       dataImagenes: req.body.dataImags,
+  //     },
+  //     function (error) {
+  //       if (!error) {
+  //         res.send("Edición guardada con éxito")
+  //       } else {
+  //         res.send(`Error al guardar edición.`)
+  //       }
+  //     }
+  //   );
+  // }
+
+});
+
 app.post(`/eliminarProducto`, function (req, res) {
   console.log(req.body);
   unProducto.deleteOne({ _id: req.body._id }, function (err) {
@@ -179,14 +278,15 @@ app.post('/disponibleUsuario', function(req, res){
   });
 });
 app.post('/nuevaCategoria', function (req, res) {
-  if (req.body.id === '') {
+  // console.log(req)
+  if (req.body.idCategoria === '') {
     unaCategoria.create({ nombre: req.body.nombre }, function (error) {
       if (!error) {
         res.send(`Categoría "${req.body.nombre}" creada con éxito.`)
       }
       else {
         res.send(`Error al crear categoría.`)
-      }
+      } 
     })
   }
   else {
