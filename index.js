@@ -2,28 +2,13 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
-// const bp = require('body-parser');
 const session = require('express-session');
 const multer = require('multer');
-// const upload = multer({ dest: './imagenes' });
-// const storage = multer.diskStorage({ 
-//   destination:function(req,file,callback){
-//     const dir = `./imagenes/vaina`;
-//     if (!fs.existsSync(dir)) {
-//       fs.mkdirSync(dir);
-//     }
-//     callback(null, dir);
-//   },
-//   filename: function (req, file, callback) {
-//     callback(null, file.originalname);
-//   }
-// })
-// const upload = multer({storage:storage}).array('imagen', 10)
 const SaltRounds = 10;
 const app = express();
 const cors = require('cors');
 const mongoose = require('mongoose');
-const puerto = 3000;
+const puerto = process.env.PORT || 3000;
 
 
 app.use(session({ 
