@@ -7,7 +7,8 @@
     "node": "14.4.0"
   },
   "scripts": {
-    "test": "text"
+    "test": "text",
+    "start": "node index.js"
   },
   "author": "Daniel Méndez",
   "license": "ISC",
