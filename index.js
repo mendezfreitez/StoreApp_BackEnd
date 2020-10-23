@@ -93,7 +93,7 @@ app.post('/traerTodos', function (req, res) {
     });
   }
 });
-app.post('/Registro', function(req, res){
+app.post('/Registro', function(req, res){ 
   bcrypt.hash(req.body.contrasenia, SaltRounds)
   .then(function(hashedPassword) {
     unUsuario.create({'usuario':req.body.usuario,'contrasenia':hashedPassword});
