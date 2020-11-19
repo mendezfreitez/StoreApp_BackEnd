@@ -45,8 +45,9 @@ const productoEsquema = new mongoose.Schema({
   categoria:String,
   precio: Number,
   cantidad: Number,
-  nombreImagenes:Array,
-  // dataImagenes:Array
+  nombreImagenes: Array,
+  aplicaDescuento: Boolean,
+  descuento:Object
 }); 
 const usuarioEsquema = new mongoose.Schema({
   usuario: String,
@@ -117,15 +118,16 @@ app.post('/Registro', function(req, res){
 });
 app.post('/NuevoProducto', function (req, res) {
   console.log(req.body);
-  return;
   if (req.body.idProducto === '') {
     unProducto.create({ 
-    nombre: req.body.nombre,
-    descripcion: req.body.descripcion, 
-    categoria: req.body.categoria,
-    precio: req.body.precio,
-    cantidad: req.body.cantidad,
-    nombreImagenes:req.body.nombreImags,
+      nombre: req.body.nombre,
+      descripcion: req.body.descripcion, 
+      categoria: req.body.categoria,
+      precio: req.body.precio,
+      cantidad: req.body.cantidad,
+      nombreImagenes: req.body.nombreImags,
+      aplicaDescuento: req.body.aplicaDescuento,
+      descuento:req.body.descuento
     // dataImagenes:req.body.dataImags
     }, function(err, result){
         if (!err) {
@@ -148,6 +150,8 @@ app.post('/NuevoProducto', function (req, res) {
         precio: req.body.precio,
         cantidad: req.body.cantidad,
         nombreImagenes: req.body.nombreImags,
+        aplicaDescuento: req.body.aplicaDescuento,
+        descuento:req.body.descuento
         // dataImagenes: req.body.dataImags,
       },
       function (error) {
@@ -159,7 +163,6 @@ app.post('/NuevoProducto', function (req, res) {
       }
     );
   }
-
 });
 app.post('/ImagenesNuevoProducto', function (req, res) {
 
