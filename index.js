@@ -63,7 +63,7 @@ const unaCategoria = mongoose.model('categorias', cateoriaEsquema);
 var nombreCarpeta = '';
 
 app.get('/', function (req, res) {
-  res.send('Bienvenido Daniel, ESTO ES UNA PRUEBA');
+  res.send('Bienvenido Daniel, ESTO ES UNA PRUEBA, VAMO A PROBAR UN BETULIO');
   console.log(`Escuchando el puerto ${puerto}`);
 });
 app.get('/Admin', function (req, res) {
