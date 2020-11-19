@@ -6,6 +6,7 @@ const session = require('express-session');
 const multer = require('multer');
 const SaltRounds = 10;
 const app = express();
+// var admin = require("firebase-admin");
 const cors = require('cors');
 const mongoose = require('mongoose');
 const puerto = process.env.PORT || 3000;
@@ -27,6 +28,12 @@ app.use(express.static(path.join(__dirname, 'imagenes')));
 //   else{ console.log(`Conectado a mongoDB.`); }
 // });
 
+// var serviceAccount = require("./storeappback-firebase-adminsdk-gmyo8-9be4e45311.json");
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+//   databaseURL: "https://storeappback.firebaseio.com"
+// });
 mongoose.connect(`mongodb+srv://mendezfreitez:21057883@cluster0.hhhho.mongodb.net/storeDB?retryWrites=true&w=majority`, {useNewUrlParser: true, useUnifiedTopology: true}, function(err){
   if(err){ console.log(`Ocurrio un error al intentar conectar con la BD.`); }
   else{ console.log(`Conectado a mongoDB.`); }
@@ -152,7 +159,6 @@ app.post('/NuevoProducto', function (req, res) {
   }
 
 });
-
 app.post('/ImagenesNuevoProducto', function (req, res) {
 
 
@@ -224,7 +230,6 @@ app.post('/ImagenesNuevoProducto', function (req, res) {
   // }
 
 });
-
 app.post(`/eliminarProducto`, function (req, res) {
   console.log(req.body);
   unProducto.deleteOne({ _id: req.body._id }, function (err) {
